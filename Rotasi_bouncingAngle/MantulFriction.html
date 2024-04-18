@@ -14,16 +14,12 @@
             var canvas = document.getElementById('canvas'),
                 context = canvas.getContext('2d'),
                 ball = new Bola(10, 0xff0000),
-                mouse = utils.captureMouse(canvas),
                 lines = [],
                 gravity = 0.2,
                 bounce = -0.7;
 
             ball.x = 100;
-            ball.y = 50;
-            jarak = 0;
-            deltaX = 0;
-            deltaY = 0;
+            ball.y = 40;
 
             //create 5 lines, position and rotate
             lines[0] = new Line(-50, 0, 50, 0);
