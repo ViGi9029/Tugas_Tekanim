@@ -1,0 +1,119 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title></title>
+</head>
+<body>
+    <canvas id="canvas" width="800" height="800" style="border:1px solid #000f"></canvas>
+    <script src="utils.js"></script>
+    <script src="bola.js"></script>
+    <script>
+
+        window.onload = function () {
+            var canvas = document.getElementById('canvas'),
+                context = canvas.getContext('2d'),
+                particles = [],
+                numParticles = 30,
+                minDist = 100,
+                springAmount = 0.005;
+            bounce = -1.0;
+
+            for (var size, particle, i = 0; i < numParticles; i++) {
+                size = Math.random() * 10 + 2;
+                particle = new Bola(size, "#ffffff");
+                particle.x = Math.random() * canvas.width;
+                particle.y = Math.random() * canvas.height;
+                particle.vx = Math.random() * 6 - 3;
+                particle.vy = Math.random() * 6 - 3;
+                particle.mass = size;
+                particles.push(particle);
+            }
+
+            function spring(partA, partB) {
+                var dx = partB.x - partA.x,
+                    dy = partB.y - partA.y,
+                    dist = Math.sqrt(dx * dx + dy * dy);
+
+                if (dist < minDist) {
+                    var alpha = 1 - dist / minDist;
+                    context.strokeStyle = ("red", alpha);
+                    context.beginPath();
+                    context.moveTo(partA.x, partA.y);
+                    context.lineTo(partB.x, partB.y);
+                    context.stroke();
+
+                    var ax = dx * springAmount,
+                        ay = dy * springAmount;
+                    partA.vx += ax / partA.mass;
+                    partA.vy += ay / partA.mass;
+                    partB.vx -= ax / partB.mass;
+                    partB.vy -= ay / partB.mass;
+                }
+            }
+
+            function checkWalls(ball) {
+                if (ball.x + ball.radius > canvas.width) {
+                    ball.x = canvas.width - ball.radius;
+                    ball.vx *= bounce;
+                } else if (ball.x - ball.radius < 0) {
+                    ball.x = ball.radius;
+                    ball.vx *= bounce;
+                }
+                if (ball.y + ball.radius > canvas.height) {
+                    ball.y = canvas.height - ball.radius;
+                    ball.vy *= bounce;
+                } else if (ball.y - ball.radius < 0) {
+                    ball.y = ball.radius;
+                    ball.vy *= bounce;
+                }
+            }
+
+            function gravitate(partA, partB) {
+                var dx = partB.x - partA.x,
+                    dy = partB.y - partA.y,
+                    distSQ = dx * dx + dy * dy,
+                    dist = Math.sqrt(distSQ),
+                    force = partA.mass * partB.mass / distSQ;
+                partA.vx += force / partA.mass * dx / dist;
+                partA.vy += force / partA.mass * dy / dist;
+                partB.vx -= force / partB.mass * dx / dist;
+                partB.vy -= force / partB.mass * dy / dist;
+            }
+            function move(partA, i) {
+                partA.x += partA.vx;
+                partA.y += partA.vy;
+                if (partA.x > canvas.width) {
+                    partA.x = 0;
+                } else if (partA.x < 0) {
+                    partA.x = canvas.width;
+                }
+                if (partA.y > canvas.height) {
+                    partA.y = 0;
+                } else if (partA.y < 0) {
+                    partA.y = canvas.height;
+                }
+                for (var partB, j = i + 1; j < numParticles; j++) {
+                    partB = particles[j];
+                    spring(partA, partB);
+                    checkWalls(partB);
+                    gravitate(partA, partB);
+                }
+                checkWalls(partA);
+            }
+
+            function draw(particle) {
+                particle.draw(context);
+            }
+
+            (function drawFrame() {
+                window.requestAnimationFrame(drawFrame, canvas);
+                context.clearRect(0, 0, canvas.width, canvas.height);
+
+                particles.forEach(move);
+                particles.forEach(draw);
+            }());
+        };
+    </script>
+</body>
+</html>
