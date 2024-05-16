@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title></title>
+</head>
+
+<body>
+    <canvas id="canvas" width="800" height="800" style="border:1px solid #000f"></canvas>
+    <script src="segment.js"></script>
+    <script src="utils.js"></script>
+    <script>
+
+
+        window.onload = function () {
+            var canvas = document.getElementById('canvas'),
+                context = canvas.getContext('2d'),
+                mouse = utils.captureMouse(canvas),
+                segment0 = new Segment(100, 10),
+                segment1 = new Segment(50, 20),
+                segment2 = new Segment(100, 10),
+                segment3 = new Segment(50, 20),
+                segment4 = new Segment(100, 10);
+
+            function drag(segment, xpos, ypos) {
+                var dx = xpos - segment.x,
+                    dy = ypos - segment.y;
+                segment.rotation = Math.atan2(dy, dx);
+                var w = segment.getPin().x - segment.x,
+                    h = segment.getPin().y - segment.y;
+                segment.x = xpos - w;
+                segment.y = ypos - h;
+            }
+
+            (function drawFrame() {
+                window.requestAnimationFrame(drawFrame, canvas);
+                context.clearRect(0, 0, canvas.width, canvas.height);
+
+                drag(segment0, mouse.x, mouse.y);
+                drag(segment1, segment0.x, segment0.y);
+                drag(segment2, segment1.x, segment1.y);
+                drag(segment3, segment2.x, segment2.y);
+                drag(segment4, segment3.x, segment3.y);
+
+                segment0.draw(context);
+                segment1.draw(context);
+                segment2.draw(context);
+                segment3.draw(context);
+                segment4.draw(context);
+            }());
+        };
+
+
+    </script>
+</body>
+
+</html>
